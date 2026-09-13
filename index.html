@@ -1,0 +1,2946 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="description"
+    content="Lethal Ape — a multiplayer VR experience built around movement, exploration, horror, competition and chaos."
+  >
+  <meta name="theme-color" content="#050608">
+
+  <title>Lethal Ape</title>
+
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+
+  <script src="image-slot.js"></script>
+
+  <style>
+    :root{
+      --red:#ff304f;
+      --red-dark:#d51f38;
+      --blue:#4f7cff;
+      --purple:#9b5cff;
+      --cyan:#55d9ff;
+
+      --ink:#f5f5f7;
+      --muted:#a8a8b0;
+      --soft:#c9c9cf;
+
+      --line:rgba(255,255,255,.10);
+      --black:#050608;
+      --dark:#101116;
+      --dark2:#17181e;
+      --panel:rgba(255,255,255,.045);
+
+      --display:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        sans-serif;
+
+      --text:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Text",
+        sans-serif;
+    }
+
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      background:
+        radial-gradient(
+          800px 500px at 5% 0%,
+          rgba(255,48,79,.12),
+          transparent 65%
+        ),
+        radial-gradient(
+          800px 500px at 95% 8%,
+          rgba(79,124,255,.11),
+          transparent 65%
+        ),
+        var(--black);
+
+      color:var(--ink);
+      font-family:var(--text);
+      font-size:17px;
+      line-height:1.5;
+      letter-spacing:-.25px;
+      -webkit-font-smoothing:antialiased;
+      overflow-x:hidden;
+    }
+
+    a{
+      text-decoration:none;
+      color:inherit;
+    }
+
+    img{
+      display:block;
+      max-width:100%;
+    }
+
+    button{
+      font:inherit;
+    }
+
+    section[id]{
+      scroll-margin-top:82px;
+    }
+
+
+    .nav{
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      z-index:100;
+
+      height:64px;
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      background:rgba(5,6,8,.35);
+      backdrop-filter:blur(14px);
+
+      transition:.35s ease;
+    }
+
+    .nav.scrolled{
+      background:rgba(8,9,12,.92);
+      box-shadow:0 8px 35px rgba(0,0,0,.35);
+    }
+
+    .nav-inner{
+      width:min(1320px,100%);
+      padding:0 28px;
+
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+
+      gap:20px;
+    }
+
+    .brand{
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    .nav-links{
+      display:flex;
+      align-items:center;
+      gap:21px;
+    }
+
+    .nav-links a{
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      opacity:.72;
+      transition:.25s;
+      white-space:nowrap;
+    }
+
+    .nav-links a:hover{
+      opacity:1;
+      color:#fff;
+    }
+
+    .nav-cta{
+      padding:9px 17px;
+      border-radius:999px;
+
+      background:
+        linear-gradient(
+          100deg,
+          var(--red),
+          var(--purple),
+          var(--blue)
+        );
+
+      font-size:11px!important;
+      opacity:1!important;
+    }
+
+    @media(max-width:1150px){
+      .nav-links a:nth-child(n+6){
+        display:none;
+      }
+    }
+
+    @media(max-width:800px){
+      .nav-links a:nth-child(n+5){
+        display:none;
+      }
+    }
+
+    @media(max-width:620px){
+      .brand{
+        display:none;
+      }
+
+      .nav-inner{
+        justify-content:center;
+      }
+
+      .nav-links{
+        gap:15px;
+      }
+
+      .nav-links a:nth-child(n+4){
+        display:none;
+      }
+    }
+
+  
+    .hero{
+      min-height:100vh;
+      position:relative;
+      overflow:hidden;
+
+      display:flex;
+      align-items:flex-end;
+
+      background:#08090b;
+    }
+
+    .hero-bg{
+      position:absolute;
+      inset:0;
+
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0,0,0,.12),
+          rgba(0,0,0,.22) 35%,
+          rgba(0,0,0,.94) 100%
+        ),
+        url("assets/hero-bg.png") center/cover no-repeat;
+
+      animation:
+        heroZoom
+        12s
+        cubic-bezier(.16,1,.3,1)
+        both;
+    }
+
+    .hero-bg:after{
+      content:"";
+      position:absolute;
+      inset:-20%;
+
+      background:
+        linear-gradient(
+          115deg,
+          rgba(255,48,79,.12),
+          transparent 38%,
+          rgba(79,124,255,.13) 75%,
+          rgba(155,92,255,.10)
+        );
+
+      transform:rotate(-5deg);
+    }
+
+    .hero-content{
+      position:relative;
+      z-index:2;
+
+      width:min(1120px,100%);
+      margin:0 auto;
+
+      padding:160px 28px 90px;
+
+      text-align:center;
+    }
+
+    .hero-logo{
+      width:min(760px,90vw);
+      margin:0 auto 25px;
+
+      filter:
+        drop-shadow(0 15px 40px rgba(0,0,0,.75));
+    }
+
+    .eyebrow,
+    .kicker{
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.2em;
+      text-transform:uppercase;
+
+      color:#ddd;
+      margin-bottom:14px;
+    }
+
+    .gradient{
+      background:
+        linear-gradient(
+          100deg,
+          var(--red),
+          var(--purple),
+          var(--blue)
+        );
+
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    .hero h1{
+      font-size:clamp(42px,7vw,84px);
+      line-height:.98;
+      letter-spacing:-.055em;
+      font-weight:800;
+    }
+
+    .hero p{
+      max-width:680px;
+      margin:22px auto;
+      color:#d1d1d5;
+      font-size:20px;
+    }
+
+    .actions{
+      display:flex;
+      justify-content:center;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-top:30px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+
+      min-height:48px;
+      padding:13px 24px;
+
+      border-radius:999px;
+
+      font-weight:750;
+      font-size:15px;
+
+      transition:
+        transform .3s,
+        box-shadow .3s,
+        filter .3s;
+    }
+
+    .btn.primary{
+      background:
+        linear-gradient(
+          100deg,
+          var(--red),
+          var(--purple) 52%,
+          var(--blue)
+        );
+
+      box-shadow:
+        0 12px 35px rgba(255,48,79,.22);
+    }
+
+    .btn.secondary{
+      border:1px solid rgba(255,255,255,.2);
+      background:rgba(255,255,255,.04);
+    }
+
+    .btn:hover{
+      transform:translateY(-3px);
+      box-shadow:
+        0 18px 45px rgba(79,124,255,.18);
+
+      filter:brightness(1.08);
+    }
+
+    .scroll{
+      position:absolute;
+      bottom:22px;
+      left:50%;
+      z-index:3;
+
+      transform:translateX(-50%);
+
+      font-size:11px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+
+      opacity:.55;
+    }
+ 
+
+    .section{
+      position:relative;
+      padding:120px 24px;
+      overflow:hidden;
+    }
+
+    .section:nth-of-type(even){
+      background:var(--dark);
+    }
+
+    .section:nth-of-type(odd){
+      background:var(--black);
+    }
+
+    .section:before{
+      content:"";
+
+      position:absolute;
+
+      width:560px;
+      height:300px;
+
+      right:-260px;
+      top:0;
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(255,48,79,.08),
+          rgba(79,124,255,.09)
+        );
+
+      filter:blur(75px);
+      border-radius:50%;
+
+      pointer-events:none;
+    }
+
+    .container{
+      position:relative;
+      z-index:1;
+
+      width:min(1180px,100%);
+      margin:auto;
+    }
+
+    .center{
+      text-align:center;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:70px;
+      align-items:center;
+    }
+
+    @media(max-width:800px){
+      .split{
+        grid-template-columns:1fr;
+        gap:35px;
+      }
+
+      .section{
+        padding:82px 20px;
+      }
+    }
+
+    .kicker{
+      color:#8d8d96;
+    }
+
+    .title{
+      font-size:clamp(36px,5vw,62px);
+      line-height:1.02;
+      letter-spacing:-.045em;
+      font-weight:800;
+    }
+
+    .lead{
+      font-size:clamp(20px,2.4vw,28px);
+      line-height:1.2;
+      color:#c8c8ce;
+      margin-top:20px;
+    }
+
+    .copy{
+      color:#a9a9b1;
+      max-width:680px;
+      margin-top:20px;
+    }
+
+    .offset{
+      margin-left:7vw;
+    }
+
+    @media(max-width:800px){
+      .offset{
+        margin-left:0;
+      }
+    }
+
+    .visual{
+      margin-top:55px;
+
+      border:1px solid var(--line);
+      border-radius:24px;
+      overflow:hidden;
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255,255,255,.06),
+          rgba(255,255,255,.015)
+        );
+
+      box-shadow:
+        0 30px 80px rgba(0,0,0,.35);
+    }
+
+    .visual image-slot{
+      display:block;
+      width:100%;
+      height:460px;
+    }
+
+    @media(max-width:650px){
+      .visual image-slot{
+        height:300px;
+      }
+    }
+
+ 
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+
+      margin-top:50px;
+    }
+
+    @media(max-width:900px){
+      .cards{
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media(max-width:600px){
+      .cards{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .card{
+      position:relative;
+      overflow:hidden;
+
+      padding:28px;
+
+      border-radius:20px;
+      border:1px solid var(--line);
+
+      background:var(--panel);
+
+      transition:
+        .4s
+        cubic-bezier(.16,1,.3,1);
+    }
+
+    .card:after{
+      content:"";
+
+      position:absolute;
+
+      width:230px;
+      height:120px;
+
+      right:-100px;
+      bottom:-70px;
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(255,48,79,.18),
+          rgba(79,124,255,.18)
+        );
+
+      filter:blur(35px);
+
+      pointer-events:none;
+    }
+
+    .card:hover{
+      transform:translateY(-7px);
+
+      border-color:
+        rgba(155,92,255,.35);
+
+      box-shadow:
+        0 24px 55px rgba(0,0,0,.35);
+    }
+
+    .card .number{
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.18em;
+      color:#777782;
+    }
+
+    .card h3{
+      font-size:25px;
+      line-height:1.08;
+      margin-top:16px;
+    }
+
+    .card p{
+      font-size:14px;
+      color:#aaaab2;
+      margin-top:12px;
+      line-height:1.6;
+    }
+
+
+    .mode-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:18px;
+
+      margin-top:52px;
+    }
+
+    @media(max-width:720px){
+      .mode-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .mode{
+      padding:30px;
+
+      border-radius:22px;
+
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+
+      transition:.4s;
+    }
+
+    .mode:hover{
+      transform:translateY(-5px);
+      background:rgba(255,255,255,.06);
+    }
+
+    .mode-tag{
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:.17em;
+      text-transform:uppercase;
+      color:#888894;
+    }
+
+    .mode h3{
+      font-size:28px;
+      margin-top:10px;
+    }
+
+    .mode p{
+      color:#aaaab2;
+      font-size:14px;
+      margin-top:12px;
+    }
+
+    .mode ul{
+      list-style:none;
+      margin-top:18px;
+
+      display:grid;
+      gap:7px;
+    }
+
+    .mode li{
+      font-size:13px;
+      color:#c5c5cb;
+    }
+
+    .mode li:before{
+      content:"→";
+      color:var(--blue);
+      margin-right:8px;
+    }
+
+
+
+    .gallery{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+
+      margin-top:55px;
+    }
+
+    @media(max-width:850px){
+      .gallery{
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media(max-width:580px){
+      .gallery{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .shot{
+      border-radius:18px;
+      overflow:hidden;
+
+      border:1px solid var(--line);
+      background:#111217;
+    }
+
+    .shot image-slot{
+      display:block;
+      width:100%;
+      height:235px;
+    }
+
+    .shot-info{
+      padding:18px;
+    }
+
+    .shot-title{
+      font-weight:750;
+    }
+
+    .shot-desc{
+      font-size:13px;
+      color:#888894;
+      margin-top:5px;
+    }
+
+    .timeline{
+      max-width:820px;
+      margin:55px auto 0;
+
+      display:grid;
+      gap:14px;
+    }
+
+    .timeline-item{
+      display:grid;
+      grid-template-columns:110px 1fr;
+      gap:24px;
+
+      padding:22px;
+
+      border-left:
+        2px solid
+        rgba(79,124,255,.35);
+
+      background:rgba(255,255,255,.025);
+    }
+
+    .timeline-item .year{
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.12em;
+      color:var(--blue);
+    }
+
+    .timeline-item h3{
+      font-size:21px;
+    }
+
+    .timeline-item p{
+      font-size:14px;
+      color:#9f9fa8;
+      margin-top:5px;
+    }
+
+    @media(max-width:600px){
+      .timeline-item{
+        grid-template-columns:1fr;
+        gap:8px;
+      }
+    }
+
+
+    .quote{
+      max-width:880px;
+
+      margin:55px auto 0;
+      padding:45px 30px;
+
+      text-align:center;
+
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+    }
+
+    .quote p{
+      font-size:clamp(25px,4vw,44px);
+      line-height:1.1;
+
+      font-weight:700;
+      letter-spacing:-.04em;
+    }
+
+    .quote small{
+      display:block;
+
+      margin-top:18px;
+
+      color:#777782;
+
+      text-transform:uppercase;
+      letter-spacing:.15em;
+      font-size:10px;
+    }
+
+  
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:15px;
+
+      margin-top:55px;
+    }
+
+    .stat{
+      text-align:center;
+
+      padding:28px 15px;
+
+      border:1px solid var(--line);
+      border-radius:18px;
+
+      background:rgba(255,255,255,.035);
+    }
+
+    .stat b{
+      display:block;
+
+      font-size:30px;
+      line-height:1;
+
+      font-weight:800;
+    }
+
+    .stat span{
+      display:block;
+
+      color:#85858f;
+
+      font-size:12px;
+      margin-top:8px;
+    }
+
+    @media(max-width:700px){
+      .stats{
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+
+    .faq{
+      max-width:850px;
+      margin:50px auto 0;
+    }
+
+    details{
+      border-bottom:1px solid var(--line);
+      padding:21px 0;
+    }
+
+    summary{
+      cursor:pointer;
+
+      font-weight:700;
+      font-size:17px;
+    }
+
+    details p{
+      color:#9999a2;
+      font-size:14px;
+
+      padding-top:12px;
+
+      max-width:730px;
+    }
+
+ 
+
+    .credits-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+
+      margin-top:55px;
+    }
+
+    .credit-card{
+      position:relative;
+      overflow:hidden;
+
+      padding:32px;
+
+      min-height:230px;
+
+      border-radius:22px;
+      border:1px solid var(--line);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.06),
+          rgba(255,255,255,.025)
+        );
+
+      transition:.4s;
+    }
+
+    .credit-card:hover{
+      transform:translateY(-7px);
+
+      border-color:
+        rgba(155,92,255,.4);
+
+      box-shadow:
+        0 25px 65px rgba(0,0,0,.35);
+    }
+
+    .credit-role{
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+
+      color:#777782;
+    }
+
+    .credit-name{
+      font-size:32px;
+      font-weight:800;
+
+      margin-top:13px;
+
+      letter-spacing:-.04em;
+    }
+
+    .credit-description{
+      color:#a5a5ae;
+
+      font-size:14px;
+      line-height:1.65;
+
+      margin-top:13px;
+    }
+
+    .credit-accent{
+      position:absolute;
+
+      width:150px;
+      height:150px;
+
+      right:-70px;
+      bottom:-80px;
+
+      border-radius:50%;
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255,48,79,.18),
+          rgba(79,124,255,.18)
+        );
+
+      filter:blur(25px);
+    }
+
+    @media(max-width:900px){
+      .credits-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media(max-width:600px){
+      .credits-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+ 
+    .final{
+      text-align:center;
+
+      padding:150px 24px;
+
+      background:
+        radial-gradient(
+          55% 70% at 50% 100%,
+          rgba(79,124,255,.14),
+          transparent 70%
+        ),
+        radial-gradient(
+          50% 60% at 50% 0%,
+          rgba(255,48,79,.12),
+          transparent 70%
+        ),
+        #07080b;
+    }
+
+    .final h2{
+      font-size:clamp(45px,7vw,86px);
+
+      line-height:.96;
+      letter-spacing:-.055em;
+    }
+
+    .final p{
+      max-width:620px;
+
+      margin:22px auto;
+
+      color:#aaaab3;
+      font-size:19px;
+    }
+
+    footer{
+      padding:70px 24px 40px;
+
+      background:#090a0d;
+
+      border-top:1px solid var(--line);
+    }
+
+    .footer-grid{
+      width:min(1180px,100%);
+      margin:auto;
+
+      display:grid;
+      grid-template-columns:2fr repeat(3,1fr);
+
+      gap:45px;
+    }
+
+    footer h4{
+      font-size:13px;
+
+      text-transform:uppercase;
+      letter-spacing:.12em;
+
+      margin-bottom:14px;
+    }
+
+    footer a{
+      display:block;
+
+      color:#8f8f99;
+
+      font-size:14px;
+      line-height:2;
+
+      transition:.2s;
+    }
+
+    footer a:hover{
+      color:#fff;
+    }
+
+    .footer-brand p{
+      color:#777782;
+
+      font-size:13px;
+
+      max-width:350px;
+
+      margin-top:12px;
+    }
+
+    .footer-credits{
+      margin-top:25px;
+
+      display:grid;
+      gap:9px;
+    }
+
+    .footer-credit{
+      font-size:12px;
+      color:#777782;
+    }
+
+    .footer-credit strong{
+      color:#c8c8ce;
+    }
+
+    .legal{
+      width:min(1180px,100%);
+
+      margin:45px auto 0;
+      padding-top:22px;
+
+      border-top:1px solid var(--line);
+
+      color:#666670;
+
+      font-size:11px;
+      line-height:1.7;
+    }
+
+    @media(max-width:800px){
+      .footer-grid{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .footer-brand{
+        grid-column:1/-1;
+      }
+    }
+
+    @media(max-width:500px){
+      .footer-grid{
+        grid-template-columns:1fr;
+      }
+
+      .footer-brand{
+        grid-column:auto;
+      }
+    }
+
+
+    .reveal{
+      opacity:0;
+
+      transform:translateY(35px);
+
+      filter:blur(7px);
+
+      transition:
+        1s
+        cubic-bezier(.16,1,.3,1);
+    }
+
+    .reveal.in{
+      opacity:1;
+      transform:none;
+      filter:none;
+    }
+
+    @keyframes heroZoom{
+      from{
+        transform:scale(1.06);
+      }
+
+      to{
+        transform:scale(1);
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *{
+        scroll-behavior:auto!important;
+        animation:none!important;
+        transition:none!important;
+      }
+
+      .reveal{
+        opacity:1;
+        transform:none;
+        filter:none;
+      }
+    }
+  </style>
+</head>
+
+
+<body>
+
+<nav class="nav" id="nav">
+
+  <div class="nav-inner">
+
+    <a class="brand" href="#top">
+      Lethal Ape
+    </a>
+
+    <div class="nav-links">
+
+      <a href="#movement">Movement</a>
+      <a href="#facility">Facility</a>
+      <a href="#gamemodes">Modes</a>
+      <a href="#lore">Lore</a>
+      <a href="#gallery">Media</a>
+      <a href="#community">Community</a>
+      <a href="#faq">FAQ</a>
+      <a href="#credits">Credits</a>
+
+      <a
+        href="https://discord.gg/gUYQJGdrj5"
+        target="_blank"
+        rel="noopener"
+      >
+        Discord
+      </a>
+
+      <a
+        class="nav-cta"
+        href="https://www.meta.com/en-gb/experiences/lethal-ape/25282688598014625/"
+        target="_blank"
+        rel="noopener"
+      >
+        Get the game
+      </a>
+
+    </div>
+
+  </div>
+
+</nav>
+
+
+
+<header class="hero" id="top">
+
+  <div class="hero-bg"></div>
+
+  <div class="hero-content">
+
+    <p class="eyebrow">
+      Early Access · Meta Quest · Multiplayer VR
+    </p>
+
+    <img
+      class="hero-logo"
+      src="assets/logo-text.png"
+      alt="Lethal Ape"
+    >
+
+    <h1>
+      Go in together.<br>
+      <span class="gradient">
+        Get out if you can.
+      </span>
+    </h1>
+
+    <p>
+      A physical VR experience where your hands control every climb,
+      every escape and every mistake. Bring your friends.
+      The facility is waiting.
+    </p>
+
+    <div class="actions">
+
+      <a
+        class="btn primary"
+        href="https://www.meta.com/en-gb/experiences/lethal-ape/25282688598014625/"
+        target="_blank"
+        rel="noopener"
+      >
+        Play on Meta Quest
+      </a>
+
+      <a
+        class="btn secondary"
+        href="https://discord.gg/gUYQJGdrj5"
+        target="_blank"
+        rel="noopener"
+      >
+        Enter the Discord
+      </a>
+
+    </div>
+
+  </div>
+
+  <a class="scroll" href="#movement">
+    Scroll to descend ↓
+  </a>
+
+</header>
+
+<section class="section" id="movement">
+
+  <div class="container split reveal">
+
+    <div class="offset">
+
+      <p class="kicker">
+        01 / Movement
+      </p>
+
+      <h2 class="title">
+        Your arms are the engine.
+      </h2>
+
+      <p class="lead">
+        Forget traditional movement. Grab, push, swing and
+        launch yourself through the world.
+      </p>
+
+      <p class="copy">
+        Lethal Ape turns physical movement into the heart of the
+        experience. Crawl through tight spaces, scramble over
+        obstacles, reach for ledges and throw yourself around
+        corners when something starts getting too close.
+      </p>
+
+      <p class="copy">
+        Every movement becomes part of the strategy. Knowing how
+        to move is one thing. Knowing when to move is another.
+      </p>
+
+      <div
+        class="actions"
+        style="justify-content:flex-start"
+      >
+
+        <a
+          class="btn primary"
+          href="https://www.meta.com/en-gb/experiences/lethal-ape/25282688598014625/"
+          target="_blank"
+          rel="noopener"
+        >
+          Try the movement
+        </a>
+
+      </div>
+
+    </div>
+
+    <div class="visual">
+
+      <image-slot
+        id="la-shot-1"
+        src="assets/shots/la-shot-1.webp"
+        shape="rounded"
+        radius="8"
+        placeholder="Drop a gameplay screenshot: locomotion"
+      ></image-slot>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="section" id="facility">
+
+  <div class="container center reveal">
+
+    <p class="kicker">
+      02 / The Facility
+    </p>
+
+    <h2 class="title">
+      <span class="gradient">
+        Something is always moving.
+      </span>
+    </h2>
+
+    <p class="lead">
+      Dark corridors. Strange rooms. Hidden routes.
+      Places you probably shouldn't be.
+    </p>
+
+    <p class="copy" style="margin-left:auto;margin-right:auto">
+
+      Explore the depths of the facility with your friends,
+      searching for routes, secrets and a way forward.
+      The further you go, the harder it becomes to know
+      what is waiting around the next corner.
+
+    </p>
+
+    <div class="visual">
+
+      <image-slot
+        id="la-shot-4"
+        src="assets/shots/la-shot-4.webp"
+        shape="rounded"
+        radius="8"
+        placeholder="Drop a screenshot: the facility depths"
+      ></image-slot>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="section" id="features">
+
+  <div class="container">
+
+    <div class="reveal">
+
+      <p class="kicker">
+        03 / The Experience
+      </p>
+
+      <h2 class="title">
+        Built around the moments you remember.
+      </h2>
+
+      <p class="lead">
+        The best rounds aren't scripted.
+        They happen because everyone makes a different
+        decision at the worst possible time.
+      </p>
+
+    </div>
+
+
+    <div class="cards">
+
+      <article class="card reveal">
+        <span class="number">
+          01 — PHYSICAL
+        </span>
+
+        <h3>
+          Move for real.
+        </h3>
+
+        <p>
+          Every jump, climb and desperate escape comes from
+          your own movement. Your body becomes part of the strategy.
+        </p>
+      </article>
+
+
+      <article class="card reveal">
+        <span class="number">
+          02 — SOCIAL
+        </span>
+
+        <h3>
+          Make noise together.
+        </h3>
+
+        <p>
+          Coordinate with friends, split up when necessary,
+          regroup when things go wrong and laugh about the
+          player who got caught first.
+        </p>
+      </article>
+
+
+      <article class="card reveal">
+        <span class="number">
+          03 — UNPREDICTABLE
+        </span>
+
+        <h3>
+          Expect the unexpected.
+        </h3>
+
+        <p>
+          Different players, routes and decisions can make
+          a familiar location feel completely different
+          on the next run.
+        </p>
+      </article>
+
+
+      <article class="card reveal">
+        <span class="number">
+          04 — TENSION
+        </span>
+
+        <h3>
+          Listen carefully.
+        </h3>
+
+        <p>
+          Sometimes the most important information is the
+          sound coming from somewhere you can't see.
+        </p>
+      </article>
+
+
+      <article class="card reveal">
+        <span class="number">
+          05 — REPLAYABLE
+        </span>
+
+        <h3>
+          One more round.
+        </h3>
+
+        <p>
+          Survive, get caught, switch modes and jump
+          straight back in. There is always another
+          route worth testing.
+        </p>
+      </article>
+
+
+      <article class="card reveal">
+        <span class="number">
+          06 — CHAOTIC
+        </span>
+
+        <h3>
+          Plans rarely survive.
+        </h3>
+
+        <p>
+          A perfect strategy can disappear the second
+          the lights change and someone starts screaming
+          down the hallway.
+        </p>
+      </article>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="section" id="gamemodes">
+
+  <div class="container">
+
+    <div class="center reveal">
+
+      <p class="kicker">
+        04 / Events
+      </p>
+
+      <h2 class="title">
+        <span class="gradient">
+          Choose how the night goes.
+        </span>
+      </h2>
+
+      <p class="lead">
+        Different objectives. Different pressure.
+        Same facility.
+      </p>
+
+    </div>
+
+
+    <div class="mode-grid">
+
+
+      <article class="mode reveal">
+
+        <span class="mode-tag">
+          LockDown
+        </span>
+
+        <h3>
+         Scary
+        </h3>
+
+        <p>
+          Whenever it gets scarier.. Its starts flashing red, more before your eyes..
+        </p>
+
+        <ul>
+          <li>Scarier</li>
+          <li>Flashing Red</li>
+          <li>Make sure to run faster..</li>
+        </ul>
+
+      </article>
+
+
+      <article class="mode reveal">
+
+        <span class="mode-tag">
+          Gun-Fights in SOME servers
+        </span>
+
+        <h3>
+          Staff in a lobby?
+        </h3>
+
+        <p>
+          AK-47, mutiple staff may be in one lobby with each other. And in-side the staff room, there is an AK-47, they sometimes get in a battle with each other.
+        </p>
+
+        <ul>
+          <li>AK-47</li>
+          <li>Staff Fighting</li>
+          <li>Turn the tables between staff.</li>
+        </ul>
+
+      </article>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="section" id="lore">
+
+  <div class="container">
+
+    <div class="split reveal">
+
+      <div>
+
+        <p class="kicker">
+          05 / Lore
+        </p>
+
+        <h2 class="title">
+          Nobody remembers who built it.
+        </h2>
+
+        <p class="lead">
+          They only remember what happens after the doors close.
+        </p>
+
+      </div>
+
+
+      <div>
+
+        <p class="copy">
+          Beneath the surface sits a place that feels too large,
+          too old and too active to have been abandoned.
+          Corridors connect to rooms that should not fit together.
+          Machines hum behind walls.
+          Footsteps appear where nobody is standing.
+        </p>
+
+        <p class="copy">
+          The deeper you go, the less the facility feels like
+          a location and the more it feels like something watching
+          the people inside it.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="timeline">
+
+
+      <div class="timeline-item reveal">
+
+        <span class="year">
+          ENTRY
+        </span>
+
+        <div>
+
+          <h3>
+            The doors open.
+          </h3>
+
+          <p>
+            The first step is always easy.
+            The way back is the part nobody talks about.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="timeline-item reveal">
+
+        <span class="year">
+          DESCENT
+        </span>
+
+        <div>
+
+          <h3>
+            The map stops making sense.
+          </h3>
+
+          <p>
+            Routes disappear, familiar rooms return and the
+            group starts noticing things that weren't there before.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="timeline-item reveal">
+
+        <span class="year">
+          CONTACT
+        </span>
+
+        <div>
+
+          <h3>
+            You hear something nearby.
+          </h3>
+
+          <p>
+            At first it sounds distant.
+            Then it sounds closer.
+            Then everyone starts moving at once.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="timeline-item reveal">
+
+        <span class="year">
+          ESCAPE
+        </span>
+
+        <div>
+
+          <h3>
+            Find a way back.
+          </h3>
+
+          <p>
+            Getting out is not about being the fastest.
+            It's about making the right decision before
+            the next mistake.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="section" id="gallery">
+
+  <div class="container center reveal">
+
+    <p class="kicker">
+      06 / Screenshots
+    </p>
+
+    <h2 class="title">
+      <span class="gradient">
+        See what waits below.
+      </span>
+    </h2>
+
+    <p class="lead">
+      Real screenshots and promotional imagery from the game.
+    </p>
+
+  </div>
+
+
+  <div class="container gallery">
+
+
+    <article class="shot reveal">
+
+      <image-slot
+        id="la-shot-2"
+        src="assets/shots/la-shot-2.webp"
+        shape="rounded"
+        radius="8"
+        placeholder="Drop screenshot"
+      ></image-slot>
+
+      <div class="shot-info">
+
+        <div class="shot-title">
+          First Floor..
+        </div>
+
+        <div class="shot-desc">
+         The first floor... doesn't compare to the second..
+        </div>
+
+      </div>
+
+    </article>
+
+
+    <article class="shot reveal">
+
+      <image-slot
+        id="la-shot-3"
+        src="assets/shots/la-shot-3.webp"
+        shape="rounded"
+        radius="8"
+        placeholder="Drop screenshot"
+      ></image-slot>
+
+      <div class="shot-info">
+
+        <div class="shot-title">
+          Dark Rooms
+        </div>
+
+        <div class="shot-desc">
+         Darker, and more quiet..
+        </div>
+
+      </div>
+
+    </article>
+
+
+    <article class="shot reveal">
+
+      <image-slot
+        id="la-shot-5"
+        src="assets/shots/la-shot-5.webp"
+        shape="rounded"
+        radius="8"
+        placeholder="Drop screenshot"
+      ></image-slot>
+
+      <div class="shot-info">
+
+        <div class="shot-title">
+          NULL
+        </div>
+
+        <div class="shot-desc">
+          NULL
+        </div>
+
+      </div>
+
+    </article>
+
+
+    <article class="shot reveal">
+
+      <image-slot
+        id="la-shot-6"
+        src="assets/shots/la-shot-6.webp"
+        shape="rounded"
+        radius="8"
+        placeholder="Drop screenshot"
+      ></image-slot>
+
+      <div class="shot-info">
+
+        <div class="shot-title">
+          NULL
+        </div>
+
+        <div class="shot-desc">
+          NULL
+        </div>
+
+      </div>
+
+    </article>
+
+
+    <article class="shot reveal">
+
+      <image-slot
+        id="la-shot-7"
+        src="assets/shots/la-shot-7.webp"
+        shape="rounded"
+        radius="8"
+        placeholder="Drop screenshot"
+      ></image-slot>
+
+      <div class="shot-info">
+
+        <div class="shot-title">
+          NULL
+        </div>
+
+        <div class="shot-desc">
+          NULL
+        </div>
+
+      </div>
+
+    </article>
+
+
+    <article class="shot reveal">
+
+      <image-slot
+        id="la-shot-8"
+        src="assets/shots/la-shot-8.webp"
+        shape="rounded"
+        radius="8"
+        placeholder="Drop screenshot"
+      ></image-slot>
+
+      <div class="shot-info">
+
+        <div class="shot-title">
+          NULL
+        </div>
+
+        <div class="shot-desc">
+          NULL
+        </div>
+
+      </div>
+
+    </article>
+
+  </div>
+
+</section>
+
+
+<section class="section" id="assetkit">
+
+  <div class="container split reveal">
+
+    <div>
+
+      <p class="kicker">
+        07 / Creator Tools
+      </p>
+
+      <h2 class="title">
+        Make something from the chaos.
+      </h2>
+
+      <p class="lead">
+        Official assets are available for creators
+        making Lethal Ape content.
+      </p>
+
+      <p class="copy">
+        Use the creator kit for videos, thumbnails,
+        social posts, community projects and other
+        content related to Lethal Ape.
+      </p>
+
+      <div
+        class="actions"
+        style="justify-content:flex-start"
+      >
+
+        <a
+          class="btn primary"
+          href="https://www.figma.com/board/4aQPEdV0IVgJoBAcJTqLTC/Lethal-Ape-Asset-Kit?node-id=13-14&amp;t=4ClRsdxzycXqVCvN-1"
+          target="_blank"
+          rel="noopener"
+        >
+          Open Asset Kit
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <span class="number">
+        CREATOR LICENSE
+      </span>
+
+      <h3>
+        Keep it connected to the game.
+      </h3>
+
+      <p>
+        Assets are intended for content about or promoting
+        Lethal Ape.
+      </p>
+
+      <p>
+        Do not resell, redistribute, sublicense or turn
+        individual assets into standalone products.
+      </p>
+
+      <p>
+        Do not modify official branding in a way that falsely
+        suggests endorsement or affiliation.
+      </p>
+
+      <p>
+        Always check the official Asset Kit for the current
+        license and permissions.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<section class="section" id="community">
+
+  <div class="container center reveal">
+
+    <p class="kicker">
+      08 / Community
+    </p>
+
+    <h2 class="title">
+      The lobby is part of the game.
+    </h2>
+
+    <p class="lead">
+      Bring friends, meet rivals, share clips and find
+      people who are just as willing to go deeper than they should.
+    </p>
+
+
+    <div class="stats">
+
+      <div class="stat">
+        <b>VR</b>
+        <span>Built for Meta Quest</span>
+      </div>
+
+      <div class="stat">
+        <b>MP</b>
+        <span>Multiplayer experience</span>
+      </div>
+
+      <div class="stat">
+        <b>∞</b>
+        <span>Reasons to run</span>
+      </div>
+
+      <div class="stat">
+        <b>1</b>
+        <span>Facility waiting below</span>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="container quote reveal">
+
+    <p>
+      “The funniest moments usually happen five seconds
+      before everything goes wrong.”
+    </p>
+
+    <small>
+      — Someone who definitely should have stayed with the group
+    </small>
+
+  </div>
+
+</section>
+
+
+<section class="section" id="socials">
+
+  <div class="container center reveal">
+
+    <p class="kicker">
+      09 / Stay Connected
+    </p>
+
+    <h2 class="title">
+      <span class="gradient">
+        Watch the chaos outside the facility.
+      </span>
+    </h2>
+
+    <p class="lead">
+      Clips, announcements, updates and community moments.
+    </p>
+
+
+    <div class="cards">
+
+
+      <a
+        class="card"
+        href="https://discord.gg/gUYQJGdrj5"
+        target="_blank"
+        rel="noopener"
+      >
+
+        <span class="number">
+          COMMUNITY
+        </span>
+
+        <h3>
+          Discord
+        </h3>
+
+        <p>
+          Meet players, follow announcements
+          and stay close to the next update.
+        </p>
+
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="section" id="faq">
+
+  <div class="container">
+
+    <div class="center reveal">
+
+      <p class="kicker">
+        10 / Questions
+      </p>
+
+      <h2 class="title">
+        Before you descend.
+      </h2>
+
+      <p class="lead">
+        A few quick answers for new players.
+      </p>
+
+    </div>
+
+
+    <div class="faq">
+
+
+      <details class="reveal">
+
+        <summary>
+          What platform is Lethal Ape on?
+        </summary>
+
+        <p>
+          Lethal Ape is available for Meta Quest.
+          Check the official store listing for the latest
+          supported headset information.
+        </p>
+
+      </details>
+
+
+      <details class="reveal">
+
+        <summary>
+          Is the game multiplayer?
+        </summary>
+
+        <p>
+          Yes. Multiplayer is a major part of the experience,
+          with gameplay built around playing alongside or
+          against other people.
+        </p>
+
+      </details>
+
+
+      <details class="reveal">
+
+        <summary>
+          Do I need to be good at VR movement?
+        </summary>
+
+        <p>
+          No. You can learn the movement as you play.
+          Physical movement is intentionally part of the
+          experience.
+        </p>
+
+      </details>
+
+
+      <details class="reveal">
+
+        <summary>
+          Is Lethal Ape still being updated?
+        </summary>
+
+        <p>
+          Lethal Ape is an evolving experience, so features,
+          balance, content and presentation may change during
+          development.
+        </p>
+
+      </details>
+
+
+      <details class="reveal">
+
+        <summary>
+          Where can I find official announcements?
+        </summary>
+
+        <p>
+          The official community channels and Meta Quest
+          store listing are the best places to check for
+          current information.
+        </p>
+
+      </details>
+
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="section" id="credits">
+
+  <div class="container">
+
+    <div class="center reveal">
+
+      <p class="kicker">
+        11 / Credits
+      </p>
+
+      <h2 class="title">
+        <span class="gradient">
+          Built by the people behind the chaos.
+        </span>
+      </h2>
+
+      <p class="lead">
+        Meet the people responsible for the game,
+        website and community experience.
+      </p>
+
+    </div>
+
+
+    <div class="credits-grid">
+
+
+      <article class="credit-card reveal">
+
+        <span class="credit-role">
+          Game Owner
+        </span>
+
+        <h3 class="credit-name">
+          Jamal
+        </h3>
+
+        <p class="credit-description">
+          Jamal is the owner of Lethal Ape and is responsible
+          for the direction and continued development of the game.
+        </p>
+
+        <div class="credit-accent"></div>
+
+      </article>
+
+
+      <article class="credit-card reveal">
+
+<span class="credit-role">
+  Game Developers
+</span>
+
+<h3 class="credit-name">
+  Jamal · Tig · Finlayy · Sbstn · Xera · Monke Developer · Claude Code
+</h3>
+
+        <p class="credit-description">
+          Game development, gameplay direction and the systems
+          that make the Lethal Ape experience possible.
+        </p>
+
+        <div class="credit-accent"></div>
+
+      </article>
+
+
+      <article class="credit-card reveal">
+
+        <span class="credit-role">
+          Website Developer
+        </span>
+
+        <h3 class="credit-name">
+          Lunar / QD5L
+        </h3>
+
+        <p class="credit-description">
+          Website design and development, including the
+          layout, responsive interface, animations and
+          interactive presentation of the Lethal Ape website.
+        </p>
+
+        <div class="credit-accent"></div>
+
+      </article>
+
+
+      <article class="credit-card reveal">
+
+        <span class="credit-role">
+          Studio
+        </span>
+
+        <h3 class="credit-name">
+          Jamal Studio's LLC
+        </h3>
+
+        <p class="credit-description">
+          The studio associated with Lethal Ape and its
+          official game branding, assets and development.
+        </p>
+
+        <div class="credit-accent"></div>
+
+      </article>
+
+
+      <article class="credit-card reveal">
+
+        <span class="credit-role">
+          Community
+        </span>
+
+        <h3 class="credit-name">
+          The Players
+        </h3>
+
+        <p class="credit-description">
+          Players, creators, testers and community members
+          help make Lethal Ape what it is through feedback,
+          content and countless chaotic rounds.
+        </p>
+
+        <div class="credit-accent"></div>
+
+      </article>
+
+
+      <article class="credit-card reveal">
+
+        <span class="credit-role">
+          Special Thanks
+        </span>
+
+        <h3 class="credit-name">
+          Everyone
+        </h3>
+
+        <p class="credit-description">
+          Thank you to everyone who plays the game,
+          shares it with friends, creates content,
+          joins the community and helps Lethal Ape grow.
+        </p>
+
+        <div class="credit-accent"></div>
+
+      </article>
+
+
+    </div>
+
+
+    <div class="visual reveal" style="padding:45px 30px">
+
+      <div class="center">
+
+        <p class="kicker">
+          Official Development Credits
+        </p>
+
+        <h3
+          style="
+            font-size:clamp(30px,5vw,52px);
+            margin-top:8px;
+            letter-spacing:-.045em;
+          "
+        >
+          Lethal Ape
+        </h3>
+
+        <p
+          style="
+            color:#9f9fa8;
+            max-width:700px;
+            margin:18px auto 0;
+            font-size:15px;
+            line-height:1.7;
+          "
+        >
+          A multiplayer VR experience built around movement,
+          exploration, horror, competition and unpredictable
+          moments.
+        </p>
+
+      </div>
+
+
+      <div class="stats" style="max-width:1000px;margin:40px auto 0">
+
+        <div class="stat">
+
+          <b>
+            Jamal
+          </b>
+
+          <span>
+            Game Owner
+          </span>
+
+        </div>
+
+
+       <div class="stat">
+
+  <b>
+    Jamal
+  </b>
+
+  <span>
+    Founder / Lead Developer
+  </span>
+
+</div>
+
+<div class="stat">
+
+  <b>
+    Tig
+  </b>
+
+  <span>
+    Developer — Backend Developer
+  </span>
+
+</div>
+
+<div class="stat">
+
+  <b>
+    Finlayy
+  </b>
+
+  <span>
+    Developer — Modeler &amp; Scripter
+  </span>
+
+</div>
+
+<div class="stat">
+
+  <b>
+    Sbstn
+  </b>
+
+  <span>
+    Contributor — Models
+  </span>
+
+</div>
+
+<div class="stat">
+
+  <b>
+    Xera
+  </b>
+
+  <span>
+    Contributor — Models &amp; Scripts
+  </span>
+
+</div>
+
+<div class="stat">
+
+  <b>
+    Monke Developer
+  </b>
+
+  <span>
+    Contributor — Models
+  </span>
+
+</div>
+
+<div class="stat">
+
+  <b>
+    Claude Code
+  </b>
+
+  <span>
+    Scripter — Some Scripts
+  </span>
+
+</div>
+
+
+        <div class="stat">
+
+          <b>
+            Lunar
+          </b>
+
+          <span>
+            Website Developer
+          </span>
+
+        </div>
+
+
+        <div class="stat">
+
+          <b>
+            QD5L
+          </b>
+
+          <span>
+            Website Developer
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="faq" style="margin-top:60px">
+
+
+      <details class="reveal">
+
+        <summary>
+          Who owns Lethal Ape?
+        </summary>
+
+        <p>
+          Jamal is credited as the game owner of Lethal Ape.
+        </p>
+
+      </details>
+
+
+      <details class="reveal">
+
+    <summary>
+  Who develops Lethal Ape?
+</summary>
+
+<p>
+  <strong>Jamal</strong> — Founder/Lead Developer (Made nearly every model)<br>
+  <strong>Tig</strong> — Developer (Backend developer)<br>
+  <strong>Finlayy</strong> — Developer (Modeler &amp; Scripter)<br>
+  <strong>Sbstn</strong> — Contributor (Made some models)<br>
+  <strong>Xera</strong> — Contributor (Contributed some models &amp; scripts)<br>
+  <strong>Monke Developer</strong> — Contributor (Contributed some models)<br>
+  <strong>Claude Code</strong> — Scripter (Made some scripts)
+</p>
+
+      </details>
+
+
+      <details class="reveal">
+
+        <summary>
+          Who developed this website?
+        </summary>
+
+        <p>
+          The Lethal Ape website was developed by
+          Lunar, also known as QD5L.
+        </p>
+
+      </details>
+
+
+      <details class="reveal">
+
+        <summary>
+          Who is Jamal Studio's LLC?
+        </summary>
+
+        <p>
+         Jamal Studio's LLC is the studio associated with
+          Lethal Ape and its official game assets and branding.
+        </p>
+
+      </details>
+
+
+      <details class="reveal">
+
+        <summary>
+          Can I use Lethal Ape assets?
+        </summary>
+
+        <p>
+          Official creator assets may be available through
+          the Lethal Ape Asset Kit. Check the current creator
+          license before using official branding or assets.
+        </p>
+
+      </details>
+
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="final" id="play">
+
+  <div class="container reveal">
+
+    <p class="kicker">
+      Final Warning
+    </p>
+
+    <h2>
+      Grab your friends.<br>
+
+      <span class="gradient">
+        Then go deeper.
+      </span>
+    </h2>
+
+    <p>
+      The facility is waiting.
+      Whether you come to survive, compete, hunt or simply
+      cause absolute chaos with your friends, there is
+      always another round.
+    </p>
+
+
+    <div class="actions">
+
+      <a
+        class="btn primary"
+        href="https://www.meta.com/en-gb/experiences/lethal-ape/25282688598014625/"
+        target="_blank"
+        rel="noopener"
+      >
+        Get Lethal Ape
+      </a>
+
+      <a
+        class="btn secondary"
+        href="https://discord.gg/gUYQJGdrj5"
+        target="_blank"
+        rel="noopener"
+      >
+        Join the Community
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<footer>
+
+  <div class="footer-grid">
+
+
+    <div class="footer-brand">
+
+      <strong>
+        LETHAL APE
+      </strong>
+
+      <p>
+        A multiplayer VR experience built around movement,
+        tension, teamwork, competition and unpredictable moments.
+      </p>
+
+      <p>
+        Built for players who aren't afraid to go deeper.
+      </p>
+
+
+      <div class="footer-credits">
+
+        <div class="footer-credit">
+          <strong>Game Owner:</strong>
+          Jamal
+        </div>
+
+ <div class="footer-credit">
+  <strong>Game Developers:</strong>
+  Jamal (Founder/Lead Developer) · Tig · Finlayy · Sbstn · Xera · Monke Developer · Claude Code
+</div>
+
+        <div class="footer-credit">
+          <strong>Website Developer:</strong>
+          Lunar / QD5L
+        </div>
+
+        <div class="footer-credit">
+          <strong>Studio:</strong>
+         Jamal Studio's LLC
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div>
+
+      <h4>
+        Play
+      </h4>
+
+      <a
+        href="https://www.meta.com/en-gb/experiences/lethal-ape/25282688598014625/"
+        target="_blank"
+        rel="noopener"
+      >
+        Meta Quest Store
+      </a>
+
+      <a href="#play">
+        Get the game
+      </a>
+
+      <a href="#gamemodes">
+        Game modes
+      </a>
+
+    </div>
+
+
+    <div>
+
+      <h4>
+        Explore
+      </h4>
+
+      <a href="#movement">
+        Movement
+      </a>
+
+      <a href="#facility">
+        Facility
+      </a>
+
+      <a href="#gamemodes">
+        Game modes
+      </a>
+
+      <a href="#lore">
+        Lore
+      </a>
+
+      <a href="#gallery">
+        Screenshots
+      </a>
+
+      <a href="#community">
+        Community
+      </a>
+
+      <a href="#faq">
+        FAQ
+      </a>
+
+      <a href="#credits">
+        Credits
+      </a>
+
+    </div>
+
+
+    <div>
+
+      <h4>
+        Community
+      </h4>
+
+      <a
+        href="https://discord.gg/gUYQJGdrj5"
+        target="_blank"
+        rel="noopener"
+      >
+        Discord
+      </a>
+
+      <a
+        href="https://www.youtube.com/@lethalapeofficial"
+        target="_blank"
+        rel="noopener"
+      >
+        YouTube
+      </a>
+
+      <a
+        href="https://www.tiktok.com/@lethalape_"
+        target="_blank"
+        rel="noopener"
+      >
+        TikTok
+      </a>
+
+      <a
+        href="https://www.figma.com/board/4aQPEdV0IVgJoBAcJTqLTC/Lethal-Ape-Asset-Kit?node-id=13-14&amp;t=4ClRsdxzycXqVCvN-1"
+        target="_blank"
+        rel="noopener"
+      >
+        Asset Kit
+      </a>
+
+    </div>
+
+
+  </div>
+
+
+  <div class="legal">
+
+    <p>
+      © 2026 Lethal Ape. All rights reserved.
+    </p>
+
+    <p style="margin-top:8px">
+      Game Owner & Developer: Jamal ·
+      Website Developer: Lunar / QD5L ·
+      Studio: Jamal Studio's LLC
+    </p>
+
+    <p style="margin-top:8px">
+      Lethal Ape is an independent VR title by Jamal Studio's LLC.
+      Not affiliated with Meta Platforms, Inc. or Gorilla Tag.
+      Meta Quest is a trademark of Meta Platforms, Inc.
+    </p>
+
+    <p
+      style="
+        margin-top:18px;
+        color:#50505a;
+        font-size:10px;
+        letter-spacing:.08em;
+        text-transform:uppercase;
+      "
+    >
+      Lethal Ape · Jamal · Tig · Finlayy · Sbstn · Xera · Monke Developer · Claude Code · Jamal Studio's LLC · Lunar / QD5L
+      
+    </p>
+
+  </div>
+
+</footer>
+
+<script>
+
+(function(){
+
+  const nav =
+    document.getElementById('nav');
+
+
+  window.addEventListener(
+    'scroll',
+    () => {
+
+      nav.classList.toggle(
+        'scrolled',
+        window.scrollY > 50
+      );
+
+    },
+    { passive:true }
+  );
+
+
+  const reduced =
+    window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+
+  if(reduced){
+
+    document
+      .querySelectorAll('.reveal')
+      .forEach(el => {
+        el.classList.add('in');
+      });
+
+    return;
+  }
+// Const Observer Connectiong into a intersection which goes into a entry.target, <> hashset = 325 soo <> x 6 == wtv dalign 453 , 
+
+  const observer =
+    new IntersectionObserver(
+
+      entries => {
+
+        entries.forEach(entry => {
+
+          if(entry.isIntersecting){
+
+            entry.target.classList.add('in');
+
+            observer.unobserve(
+              entry.target
+            );
+
+          }
+
+        });
+
+      },
+
+      {
+        threshold:.12,
+        rootMargin:'0px 0px -6% 0px'
+      }
+
+    );
+
+
+  document
+    .querySelectorAll('.reveal')
+    .forEach((el,i) => {
+
+      el.style.transitionDelay =
+        ((i % 3) * .06) + 's';
+
+      observer.observe(el);
+
+    });
+
+})();
+
+</script>
+
+
+</body>
+</html>
